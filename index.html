@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Morikawa NY 2026</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://unpkg.com/pocketbase@latest/dist/pocketbase.umd.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; padding:0; background:linear-gradient(#0b0e1a, #1a1f3a); color:white; font-family:'Noto Sans JP',sans-serif; overflow:hidden; }
@@ -24,99 +25,95 @@
     nav { position:fixed; bottom:0; width:100%; background:#0b0e1a; padding:10px; text-align:center; z-index:20; }
     nav button { margin:5px; padding:10px 20px; font-size:16px; }
 
-    /* Лидерборд */
-    #leaderboard ul { list-style:none; padding:0; }
-    #leaderboard li { background:rgba(255,105,180,0.2); margin:10px; padding:10px; border-radius:10px; }
-
-    /* Кейсы и анимация */
-    #case-button { background:#ff1493; padding:20px; font-size:24px; border-radius:20px; box-shadow:0 0 20px #ff69b4; }
-    #case-model { width:200px; height:200px; margin:20px auto; background:url('https://static.vecteezy.com/system/resources/previews/000/226/725/original/vector-red-japanese-envelope-with-sakura-branch.jpg') center/cover; cursor:pointer; transition:0.3s; }
+    /* Кейсы */
+    #case-model { width:200px; height:200px; margin:40px auto; background:url('https://static.vecteezy.com/system/resources/previews/000/226/725/original/vector-red-japanese-envelope-with-sakura-branch.jpg') center/cover; cursor:pointer; transition:0.3s; border-radius:20px; box-shadow:0 0 20px #ff69b4; }
     #case-model.opening { animation: shakeOpen 2s ease-in-out; }
     @keyframes shakeOpen {
-      0% { transform: rotate(0); }
-      10% { transform: rotate(-5deg); }
-      20% { transform: rotate(5deg); }
-      30% { transform: rotate(-5deg); }
-      40% { transform: rotate(5deg); scale(1.1); }
-      60% { transform: rotate(0) scale(1.2); opacity:0.8; }
-      100% { transform: rotate(0) scale(1); opacity:1; }
+      0% { transform: scale(1) rotate(0); }
+      20% { transform: scale(1.1) rotate(-10deg); box-shadow: 0 0 40px #ff1493; }
+      50% { transform: scale(1.3); opacity: 0.7; }
+      100% { transform: scale(1) rotate(0); opacity: 1; }
     }
-    #drop-animation { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:300px; height:400px; display:none; z-index:30; animation:revealCard 1s ease-out; }
-    @keyframes revealCard { from {opacity:0; transform:scale(0.5);} to {opacity:1; transform:scale(1);} }
-    .card-display { width:100%; height:100%; background:#333; border:5px solid gold; border-radius:20px; padding:20px; text-align:center; box-shadow:0 0 30px #ffd700; position:relative; overflow:hidden; }
+    #drop-animation { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:320px; height:440px; display:none; z-index:30; animation:revealCard 1s ease-out; }
+    @keyframes revealCard { from {opacity:0; transform:scale(0.5) translate(-50%,-50%);} to {opacity:1; transform:scale(1) translate(-50%,-50%);} }
+    .card-display { width:100%; height:100%; background:#222; border:5px solid gold; border-radius:20px; padding:20px; text-align:center; box-shadow:0 0 40px #ffd700; position:relative; overflow:hidden; }
     .rarity-common { border-color:#bbb; }
     .rarity-rare { border-color:#00ff00; }
     .rarity-epic { border-color:#ff00ff; }
-    .card-img { width:200px; height:200px; object-fit:cover; border-radius:15px; margin:20px 0; }
-    #collection { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:10px; margin:20px; }
-    .collected-card { width:150px; height:200px; background-size:cover; border-radius:10px; opacity:0.7; }
-    .collected-card.owned { opacity:1; box-shadow:0 0 15px gold; }
-    /* Конфетти (простой эффект) */
-    .confetti { position:absolute; width:10px; height:10px; background:#ff69b4; animation:confettiFall 2s linear infinite; }
-    @keyframes confettiFall { 0% {transform:translateY(-100%) rotate(0);} 100% {transform:translateY(200%) rotate(360deg);} }
+    .card-img { width:220px; height:220px; object-fit:cover; border-radius:15px; margin:20px 0; }
+    #collection { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:15px; margin:20px; padding:10px; }
+    .collected-card { width:150px; height:200px; background-size:cover; background-position:center; border-radius:12px; opacity:0.6; box-shadow:0 0 10px #000; transition:0.3s; }
+    .collected-card.owned { opacity:1; box-shadow:0 0 20px gold; transform:scale(1.05); }
+    .confetti { position:absolute; width:10px; height:10px; background:#ff69b4; animation:confettiFall 3s linear; }
+    @keyframes confettiFall { 0% {transform:translateY(-100vh) rotate(0deg);} 100% {transform:translateY(100vh) rotate(720deg);} }
+    #daily-info { font-size:20px; margin:20px; color:#ffd700; }
   </style>
 </head>
 <body>
   <canvas id="snow"></canvas>
 
-  <!-- Главная страница -->
+  <!-- Главная -->
   <div id="home" class="container active">
     <h1>🌸 Morikawa<br>Новый год 2026 ⛩️</h1>
     <div class="countdown" id="countdown"></div>
-    <p>Поймай как можно больше кадзюнов! 🧧</p>
+    <p>Поймай кадзюны! 🧧</p>
     <div class="score">Очки: <span id="score">0</span></div>
     <div id="game"></div>
     <div class="top" id="top">Топ сегодня: загружается...</div>
     <div class="buttons">
-      <button onclick="Telegram.WebApp.openLink('https://forms.gle/BE1kb2Hk94wk6ph87')">🎍 Подать заявку в город</button><br>
-      <button onclick="copyCoords()">📍 Копировать координаты</button><br>
-      <button onclick="Telegram.WebApp.showPopup({message:'Поделись с друзьями!', buttons:[{type:'share', url:'t.me/morikawa_tg'}]})">📤 Поделиться в TG</button><br>
+      <button onclick="Telegram.WebApp.openLink('https://forms.gle/BE1kb2Hk94wk6ph87')">🎍 Подать заявку</button><br>
+      <button onclick="copyCoords()">📍 Координаты: розовая 1700</button><br>
       <button onclick="Telegram.WebApp.close()">✨ Закрыть</button>
     </div>
   </div>
 
-  <!-- Лидерборд страница -->
+  <!-- Лидерборд -->
   <div id="leaderboard" class="container">
-    <h1>🏆 Лидеры по никам TG</h1>
+    <h1>🏆 Лидеры по кадзюнам</h1>
     <ul id="leader-list"></ul>
     <button onclick="switchPage('home')">Назад</button>
   </div>
 
-  <!-- Страница Кейсы/Карточки -->
+  <!-- Карточки / Кейсы -->
   <div id="cards" class="container">
-    <h1>🎲 Кейсы с карточками игроков Morikawa</h1>
-    <p>Открывай кейс — собирай коллекцию топ-жителей! (1 бесплатный в день)</p>
-    <div id="case-model" onclick="openCase()"></div> <!-- Модель кейса -->
-    <p id="daily-info"></p>
+    <h1>🎲 Новогодние кейсы Morikawa</h1>
+    <div id="daily-info">Загрузка...</div>
+    <div id="case-model" onclick="openCase(false)"></div>
+    <button onclick="openCase(true)" style="font-size:18px;">Открыть за 100 монет 🌸</button>
 
     <div id="drop-animation">
       <div class="card-display" id="dropped-card">
         <h2 id="card-name"></h2>
-        <div id="card-rarity" style="font-size:18px; margin:10px;"></div>
+        <div id="card-rarity" style="font-size:20px; margin:10px;"></div>
         <img id="card-image" class="card-img">
         <p id="card-desc"></p>
         <button onclick="closeDrop()">Забрать!</button>
       </div>
     </div>
 
-    <h2>Твоя коллекция (<span id="collected-count">0</span>/<span id="total-count">0</span>)</h2>
-    <div id="collection"></div>
+    <h2>Твоя коллекция</h2>
+    <div id="collection">Загрузка...</div>
 
     <button onclick="switchPage('home')">Назад</button>
   </div>
 
-  <!-- Навигация -->
   <nav>
     <button onclick="switchPage('home')">Главная</button>
     <button onclick="switchPage('leaderboard')">Лидеры</button>
-    <button onclick="switchPage('cards')">Карточки</button>
+    <button onclick="switchPage('cards')">Кейсы</button>
   </nav>
 
   <script>
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
 
-    // Снег + лепестки сакуры
+    // PocketBase
+    const pb = new PocketBase('http://127.0.0.1:8090'); // ← Замени на свой URL, когда выложишь на сервер
+
+    let currentPlayer = null;
+    let score = 0;
+
+    // Снег и лепестки
     const canvas = document.getElementById('snow');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
@@ -153,7 +150,7 @@
     }
     draw();
 
-    // Отсчёт
+    // Отсчёт до НГ
     function updateCountdown() {
       const now = new Date();
       const ny = new Date('2026-01-01T00:00:00');
@@ -168,10 +165,9 @@
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // Мини-игра кадзюны
-    let score = 0;
+    // Кадзюны
     const game = document.getElementById('game');
-    function spawn() {
+    function spawnKadzyun() {
       const k = document.createElement('div');
       k.className = 'kadzyun';
       k.style.left = Math.random()*240 + 'px';
@@ -179,50 +175,171 @@
       k.onclick = () => {
         score += 10;
         document.getElementById('score').textContent = score;
-        saveScore();
+        saveLocalScore();
         k.remove();
       };
       game.appendChild(k);
-      setTimeout(() => k.remove(), 3000);
+      setTimeout(() => k && k.remove(), 3000);
     }
-    setInterval(spawn, 800);
+    setInterval(spawnKadzyun, 800);
 
-    // Сохранение и топ
-    function saveScore() {
-      const user = Telegram.WebApp.initDataUnsafe.user || {first_name:'Аноним', username:'anon'};
+    // Локальный топ кадзюнов
+    function saveLocalScore() {
+      const user = Telegram.WebApp.initDataUnsafe.user || {first_name:'Аноним'};
       const name = user.username ? `@${user.username}` : user.first_name;
       const today = new Date().toDateString();
-      let top = JSON.parse(localStorage.getItem('morikawa_ny_top') || '{}');
+      let top = JSON.parse(localStorage.getItem('morikawa_kadzyun_top') || '{}');
       if(!top[today]) top[today] = [];
       const existing = top[today].find(p => p.name === name);
       if(existing) existing.score = Math.max(existing.score, score);
       else top[today].push({name, score});
       top[today].sort((a,b)=>b.score-a.score);
       top[today] = top[today].slice(0,10);
-      localStorage.setItem('morikawa_ny_top', JSON.stringify(top));
-      updateTop();
+      localStorage.setItem('morikawa_kadzyun_top', JSON.stringify(top));
+      updateLocalTop();
       updateLeaderboard();
     }
-    function updateTop() {
+    function updateLocalTop() {
       const today = new Date().toDateString();
-      let top = JSON.parse(localStorage.getItem('morikawa_ny_top') || '{}');
+      let top = JSON.parse(localStorage.getItem('morikawa_kadzyun_top') || '{}');
       const list = top[today] || [];
       document.getElementById('top').innerHTML = '<strong>🏆 Топ сегодня:</strong><br>' + 
         (list.length ? list.map((p,i)=>`${i+1}. ${p.name} — ${p.score}`).join('<br>') : 'Пока никто!');
     }
-    updateTop();
+    updateLocalTop();
 
-    // Лидерборд обновление
     function updateLeaderboard() {
-      const listEl = document.getElementById('leader-list');
-      listEl.innerHTML = '';
-      const today = new Date().toDateString();
-      let top = JSON.parse(localStorage.getItem('morikawa_ny_top') || '{}');
-      const list = top[today] || [];
-      list.forEach((p,i) => {
-        const li = document.createElement('li');
-        li.innerHTML = `${i+1}. ${p.name} — ${p.score} очков`;
-        listEl.appendChild(li);
+      // Можно потом заменить на глобальный из БД
+      updateLocalTop();
+    }
+
+    // Инициализация игрока
+    async function initPlayer() {
+      const tg = Telegram.WebApp.initDataUnsafe;
+      if (!tg.user || !tg.user.id) {
+        Telegram.WebApp.showAlert('Запусти через Telegram!');
+        return;
+      }
+
+      try {
+        currentPlayer = await pb.collection('players').getFirstListItem(`telegram_id = ${tg.user.id}`);
+      } catch (e) {
+        currentPlayer = await pb.collection('players').create({
+          telegram_id: tg.user.id,
+          username: tg.user.username || tg.user.first_name || 'Аноним',
+          coins: 100,
+          free_cases_today: 0,
+        });
+      }
+
+      document.getElementById('daily-info').innerHTML = `
+        🌸 Монеты: <strong>${currentPlayer.coins}</strong> 
+        | Бесплатный кейс: <strong>${currentPlayer.free_cases_today < 1 ? 'Доступен!' : 'Сегодня использован'}</strong>
+      `;
+
+      await loadCollection();
+    }
+
+    // Открытие кейса
+    async function openCase(paid = false) {
+      if (!currentPlayer) return;
+
+      const today = new Date().toISOString().slice(0,10);
+
+      if (!paid && currentPlayer.free_cases_today >= 1) {
+        return Telegram.WebApp.showAlert('Бесплатный кейс уже сегодня открыт!');
+      }
+      if (paid && currentPlayer.coins < 100) {
+        return Telegram.WebApp.showAlert('Недостаточно монет! Нужно 100 🌸');
+      }
+
+      // Анимация тряски кейса
+      const caseModel = document.getElementById('case-model');
+      caseModel.classList.add('opening');
+      setTimeout(async () => {
+        caseModel.classList.remove('opening');
+
+        // Выбор карточки
+        const cards = await pb.collection('cards').getFullList();
+        const total = cards.reduce((s, c) => s + c.drop_weight, 0);
+        let rand = Math.random() * total;
+        let drop = null;
+        for (let c of cards) {
+          rand -= c.drop_weight;
+          if (rand <= 0) { drop = c; break; }
+        }
+
+        // Добавляем в коллекцию
+        try {
+          await pb.collection('player_cards').create({
+            player: currentPlayer.id,
+            card: drop.id,
+          });
+        } catch (e) {}
+
+        // Обновляем игрока
+        const updates = {};
+        if (paid) updates.coins = currentPlayer.coins - 100;
+        if (!paid) {
+          updates.free_cases_today = 1;
+          updates.last_free_case = today;
+        }
+        currentPlayer = await pb.collection('players').update(currentPlayer.id, updates);
+
+        // Показ дропа
+        document.getElementById('card-name').textContent = drop.name + (drop.username ? ` (${drop.username})` : '');
+        document.getElementById('card-rarity').textContent = drop.rarity.toUpperCase();
+        document.getElementById('card-rarity').style.color = drop.rarity === 'epic' ? '#ff00ff' : drop.rarity === 'rare' ? '#00ff00' : '#bbb';
+        document.getElementById('card-image').src = drop.image_url || 'https://via.placeholder.com/220?text=No+Image';
+        document.getElementById('card-desc').textContent = drop.description || '';
+        document.getElementById('dropped-card').className = `card-display rarity-${drop.rarity}`;
+        document.getElementById('drop-animation').style.display = 'block';
+
+        // Конфетти
+        for(let i=0; i<60; i++) {
+          const conf = document.createElement('div');
+          conf.className = 'confetti';
+          conf.style.left = Math.random()*320 + 'px';
+          conf.style.background = ['#ff69b4', '#ffd700', '#ff1493'][Math.floor(Math.random()*3)];
+          conf.style.animationDelay = Math.random()*0.5 + 's';
+          document.getElementById('dropped-card').appendChild(conf);
+          setTimeout(() => conf.remove(), 3000);
+        }
+
+        Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        document.getElementById('daily-info').innerHTML = `
+          🌸 Монеты: <strong>${currentPlayer.coins}</strong> 
+          | Бесплатный кейс: <strong>Сегодня использован</strong>
+        `;
+        await loadCollection();
+      }, 2000);
+    }
+
+    function closeDrop() {
+      document.getElementById('drop-animation').style.display = 'none';
+    }
+
+    // Коллекция
+    async function loadCollection() {
+      if (!currentPlayer) return;
+
+      const records = await pb.collection('player_cards').getList(1, 100, {
+        filter: `player = "${currentPlayer.id}"`,
+        expand: 'card',
+      });
+
+      const allCards = await pb.collection('cards').getFullList();
+      const collectionEl = document.getElementById('collection');
+      collectionEl.innerHTML = `<h3>Коллекция: ${records.items.length} / ${allCards.length}</h3>`;
+
+      allCards.forEach(card => {
+        const div = document.createElement('div');
+        div.className = 'collected-card';
+        const owned = records.items.some(r => r.expand.card.id === card.id);
+        if (owned) div.classList.add('owned');
+        div.style.backgroundImage = `url('${card.image_url || 'https://via.placeholder.com/150?text=' + card.name}')`;
+        div.title = `${card.name} (${card.rarity})`;
+        collectionEl.appendChild(div);
       });
     }
 
@@ -230,99 +347,17 @@
     function switchPage(page) {
       document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
       document.getElementById(page).classList.add('active');
-      if(page === 'leaderboard') updateLeaderboard();
-      if(page === 'cards') {
-        updateCollection();
-        document.getElementById('daily-info').textContent = canOpenCase() ? 'Готов к открытию!' : 'Завтра новый кейс!';
+      if (page === 'cards') {
+        initPlayer();
+      }
+      if (page === 'leaderboard') {
+        updateLeaderboard();
       }
     }
 
-    // Копирование координат
     function copyCoords() {
       navigator.clipboard.writeText('розовая ветка:1700');
       Telegram.WebApp.showAlert('Координаты скопированы!');
-    }
-
-    // Система кейсов
-    const players = [  // Добавляй новых здесь!
-      { name: "miymyr4", username: "@miymyr4", rarity: "epic", image: "https://i.ebayimg.com/images/g/YkgAAOSwuIRliHe3/s-l1200.jpg", desc: "Мэр Morikawa 👑" },
-      { name: "Самурай Воин", username: "@samurai", rarity: "rare", image: "https://static.planetminecraft.com/files/image/minecraft/project/2024/639/17655076-minecraft-samurai_xl.webp", desc: "Мастер катаны ⚔️" },
-      { name: "Ниндзя Тени", username: "@ninja", rarity: "rare", image: "https://play-lh.googleusercontent.com/2piZA7eQqvsfnLLwyTW7X-mwOz3YHQvxtWQvTpZM6eKgiok5l7uvSXyhd4DHynx0IA=w526-h296-rw", desc: "Невидимый убийца 🗡️" },
-      { name: "Сакура Гейша", username: "@sakura", rarity: "common", image: "https://xforgeassets002.xboxlive.com/pf-namespace-b63a0803d3653643/6d0bf87c-bf5e-4076-afa6-c721d0fbe6bc/CherryBlossomVillage_Thumbnail_0.jpg", desc: "Хранительница садов 🌸" },
-      { name: "Дракон Они", username: "@oni", rarity: "epic", image: "https://atlbrick.com/cdn/shop/files/FullSizeRender_7ec97597-7ae8-4544-b958-5b060f0b1b96.jpg?v=1705685166", desc: "Легендарный страж 🐉" },
-      { name: "Строитель Храмов", username: "@builder", rarity: "common", image: "https://m.media-amazon.com/images/I/71GA++J9V1L._AC_SL1500_.jpg", desc: "Мастер мап-артов ⛩️" }
-    ];
-
-    let collection = JSON.parse(localStorage.getItem('morikawa_collection') || '[]');
-    const totalPlayers = players.length;
-
-    function updateCollection() {
-      document.getElementById('total-count').textContent = totalPlayers;
-      document.getElementById('collected-count').textContent = collection.length;
-
-      const collEl = document.getElementById('collection');
-      collEl.innerHTML = '';
-      players.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'collected-card' + (collection.includes(p.name) ? ' owned' : '');
-        div.style.backgroundImage = `url('${p.image}')`;
-        div.title = p.name + (collection.includes(p.name) ? ' ✓' : '');
-        collEl.appendChild(div);
-      });
-    }
-
-    function canOpenCase() {
-      const last = localStorage.getItem('morikawa_last_case');
-      const now = Date.now();
-      if(!last || now - parseInt(last) > 86400000) return true;
-      return false;
-    }
-
-    function openCase() {
-      if(!canOpenCase()) {
-        Telegram.WebApp.showAlert('Сегодня кейс уже открыт! Возвращайся завтра 🎁');
-        return;
-      }
-
-      // Анимация модели кейса
-      const caseModel = document.getElementById('case-model');
-      caseModel.classList.add('opening');
-      setTimeout(() => {
-        caseModel.classList.remove('opening');
-        // Дроп карточки
-        const drop = players[Math.floor(Math.random() * players.length)];
-        if(!collection.includes(drop.name)) collection.push(drop.name);
-        localStorage.setItem('morikawa_collection', JSON.stringify(collection));
-        localStorage.setItem('morikawa_last_case', Date.now().toString());
-
-        document.getElementById('card-name').textContent = drop.name + ' (' + drop.username + ')';
-        document.getElementById('card-rarity').textContent = drop.rarity.toUpperCase();
-        document.getElementById('card-rarity').style.color = drop.rarity === 'epic' ? '#ff00ff' : drop.rarity === 'rare' ? '#00ff00' : '#bbb';
-        document.getElementById('card-image').src = drop.image;
-        document.getElementById('card-desc').textContent = drop.desc;
-        document.getElementById('dropped-card').className = 'card-display rarity-' + drop.rarity;
-        document.getElementById('drop-animation').style.display = 'block';
-
-        // Конфетти эффект
-        for(let i=0; i<50; i++) {
-          const conf = document.createElement('div');
-          conf.className = 'confetti';
-          conf.style.left = Math.random()*300 + 'px';
-          conf.style.top = Math.random()*400 + 'px';
-          conf.style.background = ['#ff69b4', '#ffd700', '#00ff00'][Math.floor(Math.random()*3)];
-          conf.style.animationDelay = Math.random()*1 + 's';
-          document.getElementById('dropped-card').appendChild(conf);
-          setTimeout(() => conf.remove(), 3000);
-        }
-
-        Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-        updateCollection();
-        document.getElementById('daily-info').textContent = 'Завтра новый кейс!';
-      }, 2000);  // Длительность shakeOpen
-    }
-
-    function closeDrop() {
-      document.getElementById('drop-animation').style.display = 'none';
     }
   </script>
 </body>
