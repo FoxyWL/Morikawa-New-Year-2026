@@ -7,71 +7,112 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body { margin:0; padding:0; background:#0b0e1a; color:white; font-family:'Noto Sans JP',sans-serif; overflow:hidden; }
+    body { margin:0; padding:0; background:linear-gradient(#0b0e1a, #1a1f3a); color:white; font-family:'Noto Sans JP',sans-serif; overflow:hidden; }
     #snow { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; }
-    .container { position:relative; z-index:10; text-align:center; padding:20px; }
-    h1 { font-size:28px; margin:20px 0; text-shadow:0 0 10px #ff69b4; }
+    .container { position:relative; z-index:10; text-align:center; padding:20px; display:none; }
+    .active { display:block; }
+    h1 { font-size:28px; margin:20px 0; text-shadow:0 0 15px #ff69b4; color:#ff1493; }
     .countdown { font-size:24px; margin:30px 0; color:#ff69b4; }
-    #game { width:300px; height:300px; margin:20px auto; position:relative; background:rgba(0,0,0,0.3); border-radius:20px; overflow:hidden; }
-    .kadzyun { position:absolute; width:60px; height:60px; background:url('https://i.imgur.com/0Z9kZ0j.png') center/cover; cursor:pointer; }
-    .score { font-size:22px; margin:10px; }
+    #game { width:300px; height:300px; margin:20px auto; position:relative; background:rgba(255,105,180,0.1); border-radius:20px; overflow:hidden; border:2px solid #ff69b4; }
+    .kadzyun { position:absolute; width:60px; height:60px; background:url('https://i.imgur.com/0Z9kZ0j.png') center/cover; cursor:pointer; animation:fadeIn 0.5s; }
+    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+    .score { font-size:22px; margin:10px; color:#ffd700; }
     .buttons { margin:30px 0; }
-    button { background:#ff1493; border:none; color:white; padding:15px 25px; margin:10px; border-radius:12px; font-size:18px; cursor:pointer; }
-    button:hover { background:#ff69b4; }
-    .top { margin:20px; font-size:18px; }
+    button { background:#ff1493; border:none; color:white; padding:15px 25px; margin:10px; border-radius:12px; font-size:18px; cursor:pointer; box-shadow:0 0 10px #ff69b4; transition:0.3s; }
+    button:hover { background:#ff69b4; transform:scale(1.05); }
+    .top { margin:20px; font-size:18px; background:rgba(0,0,0,0.5); padding:10px; border-radius:10px; }
+    nav { position:fixed; bottom:0; width:100%; background:#0b0e1a; padding:10px; text-align:center; z-index:20; }
+    nav button { margin:5px; padding:10px 20px; font-size:16px; }
+
+    /* Лидерборд */
+    #leaderboard ul { list-style:none; padding:0; }
+    #leaderboard li { background:rgba(255,105,180,0.2); margin:10px; padding:10px; border-radius:10px; }
+
+    /* Карточки игра */
+    #cards-game { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:300px; margin:20px auto; }
+    .card { width:100px; height:150px; background:#ff69b4; border-radius:10px; cursor:pointer; transition:0.3s; position:relative; transform-style:preserve-3d; }
+    .card.flipped { transform:rotateY(180deg); }
+    .card-front, .card-back { position:absolute; width:100%; height:100%; backface-visibility:hidden; border-radius:10px; }
+    .card-front { background:url('https://example.com/sakura-pattern.jpg'); } /* Замени на паттерн */
+    .card-back { transform:rotateY(180deg); background-size:cover; }
   </style>
 </head>
 <body>
   <canvas id="snow"></canvas>
-  <div class="container">
+
+  <!-- Главная страница -->
+  <div id="home" class="container active">
     <h1>🌸 Morikawa<br>Новый год 2026 ⛩️</h1>
     <div class="countdown" id="countdown"></div>
     <p>Поймай как можно больше кадзюнов! 🧧</p>
     <div class="score">Очки: <span id="score">0</span></div>
     <div id="game"></div>
     <div class="top" id="top">Топ сегодня: загружается...</div>
-    
     <div class="buttons">
       <button onclick="Telegram.WebApp.openLink('https://forms.gle/BE1kb2Hk94wk6ph87')">🎍 Подать заявку в город</button><br>
-      <button onclick="copyCoords()">📍 Копировать координаты (розовая 1700)</button><br>
+      <button onclick="copyCoords()">📍 Копировать координаты</button><br>
+      <button onclick="Telegram.WebApp.showPopup({message:'Поделись с друзьями!', buttons:[{type:'share', url:'t.me/morikawa_tg'}]})">📤 Поделиться в TG</button><br>
       <button onclick="Telegram.WebApp.close()">✨ Закрыть</button>
     </div>
   </div>
+
+  <!-- Лидерборд страница -->
+  <div id="leaderboard" class="container">
+    <h1>🏆 Лидеры по никам TG</h1>
+    <ul id="leader-list"></ul>
+    <button onclick="switchPage('home')">Назад</button>
+  </div>
+
+  <!-- Карточки игра страница -->
+  <div id="cards" class="container">
+    <h1>🃏 Собери карточки игроков СЛ</h1>
+    <p>Найди пары! Очки: <span id="cards-score">0</span></p>
+    <div id="cards-game"></div>
+    <button onclick="resetCards()">Новая игра</button>
+    <button onclick="switchPage('home')">Назад</button>
+  </div>
+
+  <!-- Навигация -->
+  <nav>
+    <button onclick="switchPage('home')">Главная</button>
+    <button onclick="switchPage('leaderboard')">Лидеры</button>
+    <button onclick="switchPage('cards')">Карточки</button>
+  </nav>
 
   <script>
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
 
-    // Снег + лепестки сакуры
+    // Анимация снега/сакуры (усилена)
     const canvas = document.getElementById('snow');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     let particles = [];
-    for(let i=0; i<100; i++) {
+    for(let i=0; i<150; i++) {  // Больше частиц
       particles.push({
         x: Math.random()*canvas.width,
         y: Math.random()*canvas.height,
-        r: Math.random()*4+1,
-        d: Math.random()*100,
-        type: Math.random() > 0.7 ? 'sakura' : 'snow'
+        r: Math.random()*5+1,
+        d: Math.random()*150,
+        type: Math.random() > 0.6 ? 'sakura' : 'snow'
       });
     }
     function draw() {
       ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
       ctx.beginPath();
       for(let i=0; i<particles.length; i++) {
         let p = particles[i];
         if(p.type === 'sakura') {
           ctx.fillStyle = '#ff69b4';
-          ctx.fillRect(p.x, p.y, p.r*2, p.r*3);
+          ctx.fillRect(p.x, p.y, p.r*2.5, p.r*3.5);
         } else {
           ctx.moveTo(p.x, p.y);
           ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
           ctx.fill();
         }
-        p.y += p.r/2;
+        p.y += p.r/1.5;  // Быстрее падение
         if(p.y > canvas.height) p.y = 0;
         p.x += Math.sin(p.d/10);
       }
@@ -79,26 +120,22 @@
     }
     draw();
 
-    // Отсчёт
+    // Отсчёт (как раньше)
     function updateCountdown() {
       const now = new Date();
       const ny = new Date('2026-01-01T00:00:00');
       const diff = ny - now;
-      if(diff <= 0) {
-        document.getElementById('countdown').innerHTML = '🎉 С Новым 2026 годом! 🎉';
-        return;
-      }
+      if(diff <= 0) return document.getElementById('countdown').innerHTML = '🎉 С Новым 2026 годом! 🎉';
       const days = Math.floor(diff / (1000*60*60*24));
       const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
       const mins = Math.floor((diff % (1000*60*60)) / (1000*60));
       const secs = Math.floor((diff % (1000*60)) / 1000);
-      document.getElementById('countdown').innerHTML = 
-        `${days}д ${hours}ч ${mins}м ${secs}с до Нового года! 🎆`;
+      document.getElementById('countdown').innerHTML = `${days}д ${hours}ч ${mins}м ${secs}с до Нового года! 🎆`;
     }
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // Мини-игра
+    // Мини-игра кадзюны (как раньше)
     let score = 0;
     const game = document.getElementById('game');
     function spawn() {
@@ -117,27 +154,106 @@
     }
     setInterval(spawn, 800);
 
-    // Сохранение и топ (localStorage + имитация)
+    // Сохранение и топ
     function saveScore() {
-      const user = Telegram.WebApp.initDataUnsafe.user?.first_name || 'Аноним';
+      const user = Telegram.WebApp.initDataUnsafe.user || {first_name:'Аноним', username:'anon'};
+      const name = user.username ? `@${user.username}` : user.first_name;
       const today = new Date().toDateString();
       let top = JSON.parse(localStorage.getItem('morikawa_ny_top') || '{}');
       if(!top[today]) top[today] = [];
-      top[today].push({name: user, score: score});
+      const existing = top[today].find(p => p.name === name);
+      if(existing) existing.score = Math.max(existing.score, score);
+      else top[today].push({name, score});
       top[today].sort((a,b)=>b.score-a.score);
-      top[today] = top[today].slice(0,5);
+      top[today] = top[today].slice(0,10);
       localStorage.setItem('morikawa_ny_top', JSON.stringify(top));
       updateTop();
+      updateLeaderboard();
     }
     function updateTop() {
       const today = new Date().toDateString();
       let top = JSON.parse(localStorage.getItem('morikawa_ny_top') || '{}');
       const list = top[today] || [];
       document.getElementById('top').innerHTML = '<strong>🏆 Топ сегодня:</strong><br>' + 
-        (list.length ? list.map((p,i)=>`${i+1}. ${p.name} — ${p.score}`).join('<br>') : 'Пока никто не играл!');
+        (list.length ? list.map((p,i)=>`${i+1}. ${p.name} — ${p.score}`).join('<br>') : 'Пока никто!');
     }
     updateTop();
 
+    // Лидерборд обновление
+    function updateLeaderboard() {
+      const listEl = document.getElementById('leader-list');
+      listEl.innerHTML = '';
+      const today = new Date().toDateString();
+      let top = JSON.parse(localStorage.getItem('morikawa_ny_top') || '{}');
+      const list = top[today] || [];
+      list.forEach((p,i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `${i+1}. ${p.name} — ${p.score} очков`;
+        listEl.appendChild(li);
+      });
+    }
+
+    // Навигация
+    function switchPage(page) {
+      document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
+      document.getElementById(page).classList.add('active');
+      if(page === 'leaderboard') updateLeaderboard();
+      if(page === 'cards') initCards();
+    }
+
+    // Мини-игра карточки
+    let cardsScore = 0;
+    const cardImages = [  // Замени на свои URL (из поиска: Minecraft японские карточки)
+      'https://m.media-amazon.com/images/I/61JSMiGW0RL._AC_SL1500_.jpg',  // [image:0]
+      'https://i.ebayimg.com/images/g/h8YAAOSwnf1kasAm/s-l1200.png',     // [image:1]
+      'https://i5.walmartimages.com/seo/Minecraft-Playing-Cards-Includes-52x-Playing-Cards-2x-Joker-Cards-1x-Metal-Storage-Tin_d1dc1f7f-907c-4c06-a114-065f70e260bd.e71c0644214ba918a2901f662ecf52bd.png',  // [image:2]
+      'https://i.etsystatic.com/44209456/r/il/f7c8b4/6904187412/il_340x270.6904187412_qzyh.jpg',  // [image:3]
+      'https://i0.wp.com/www.vitaplayer.co.uk/wp-content/uploads/2022/02/201611271131.jpg?fit=600%2C366&ssl=1',  // [image:4]
+      'https://i.ebayimg.com/images/g/6JYAAOSwjyVkasAw/s-l400.png'       // [image:5]
+    ];
+    let cards = [...cardImages, ...cardImages].sort(() => Math.random() - 0.5);  // Дубли для пар
+    let flipped = [];
+    function initCards() {
+      const gameEl = document.getElementById('cards-game');
+      gameEl.innerHTML = '';
+      cards.forEach((img, i) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.img = img;
+        card.innerHTML = `
+          <div class="card-front"></div>
+          <div class="card-back" style="background-image:url('${img}')"></div>
+        `;
+        card.onclick = () => flipCard(card);
+        gameEl.appendChild(card);
+      });
+    }
+    function flipCard(card) {
+      if(flipped.length < 2 && !card.classList.contains('flipped')) {
+        card.classList.add('flipped');
+        flipped.push(card);
+        if(flipped.length === 2) {
+          if(flipped[0].dataset.img === flipped[1].dataset.img) {
+            cardsScore += 20;
+            document.getElementById('cards-score').textContent = cardsScore;
+            flipped = [];
+          } else {
+            setTimeout(() => {
+              flipped.forEach(c => c.classList.remove('flipped'));
+              flipped = [];
+            }, 1000);
+          }
+        }
+      }
+    }
+    function resetCards() {
+      cards = [...cardImages, ...cardImages].sort(() => Math.random() - 0.5);
+      initCards();
+      cardsScore = 0;
+      document.getElementById('cards-score').textContent = 0;
+    }
+
+    // Копирование координат
     function copyCoords() {
       navigator.clipboard.writeText('розовая ветка:1700');
       Telegram.WebApp.showAlert('Координаты скопированы!');
