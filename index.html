@@ -85,7 +85,7 @@
     @keyframes confettiFall { 0% {transform:translateY(-150%) rotate(0deg);} 100% {transform:translateY(150vh) rotate(720deg);} }
     #daily-info { font-size:6vw; margin:8vw; padding:5vw; background:rgba(255,20,147,0.4); border-radius:30px; box-shadow:0 0 25px #ff69b4; }
 
-    /* ПК версия (кнопки меньше) */
+    /* ПК версия */
     @media (min-width: 768px) {
       h1 { font-size:4vw; }
       .countdown { font-size:3vw; }
@@ -100,10 +100,61 @@
       .top { font-size:1.8vw; }
       .buttons button { font-size:1.8vw; padding:1.5vh 3vw; }
     }
+
+    /* Lo-Fi плеер улучшенный */
+    #lofi-container { 
+      position:fixed; 
+      bottom:20px; 
+      right:20px; 
+      z-index:50; 
+      background:rgba(0,0,0,0.6); 
+      border-radius:25px; 
+      padding:15px; 
+      box-shadow:0 0 30px rgba(255,105,180,0.5); 
+      backdrop-filter: blur(15px); 
+      transition:0.5s; 
+      opacity:0.8;
+      display:none;
+    }
+    #lofi-container:hover { opacity:1; transform:scale(1.05); box-shadow:0 0 40px rgba(255,105,180,0.8); }
+    #lofi-player iframe { width:280px; height:160px; border-radius:20px; border:none; }
+    #lofi-toggle { 
+      position:fixed; 
+      bottom:20px; 
+      right:20px; 
+      z-index:51; 
+      background:linear-gradient(#ff1493, #ff69b4); 
+      color:white; 
+      border:none; 
+      width:70px; 
+      height:70px; 
+      border-radius:50%; 
+      font-size:35px; 
+      cursor:pointer; 
+      box-shadow:0 0 30px #ff69b4; 
+      transition:0.5s; 
+      display:flex; 
+      align-items:center; 
+      justify-content:center;
+    }
+    #lofi-toggle:hover { transform:scale(1.15); box-shadow:0 0 50px #ff1493; }
+    #lofi-toggle:active { transform:scale(0.95); }
+
+    @media (min-width: 768px) {
+      #lofi-player iframe { width:350px; height:200px; }
+      #lofi-toggle { width:80px; height:80px; font-size:40px; bottom:30px; right:30px; }
+      #lofi-container { bottom:30px; right:30px; padding:20px; }
+    }
   </style>
 </head>
 <body>
   <div id="snow"></div>
+
+  <!-- Lo-Fi плеер -->
+  <div id="lofi-container">
+    <iframe id="lofi-iframe" src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1&loop=1&playlist=jfKfPfyJRdk" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  </div>
+  <button id="lofi-toggle" onclick="toggleLofi()">🌸🎶</button>
 
   <div id="home" class="container active">
     <h1>🌸 Morikawa<br>Новый год 2026 ⛩️</h1>
@@ -157,12 +208,27 @@
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
 
-    const pb = new PocketBase('http://127.0.0.1:8090'); // Замени на свой URL при выкладке
+    const pb = new PocketBase('http://127.0.0.1:8090'); // Замени на свой URL
 
     let currentPlayer = null;
     let score = 0;
 
-    // Лепестки на canvas
+    // Lo-Fi плеер
+    function toggleLofi() {
+      const container = document.getElementById('lofi-container');
+      const toggle = document.getElementById('lofi-toggle');
+      const iframe = document.getElementById('lofi-iframe');
+      if (container.style.display === 'none') {
+        container.style.display = 'block';
+        toggle.innerHTML = '🔊🌸';
+        iframe.src = iframe.src.replace('&mute=1', '&mute=0&volume=50');
+      } else {
+        container.style.display = 'none';
+        toggle.innerHTML = '🌸🎶';
+      }
+    }
+
+    // Лепестки
     const canvas = document.getElementById('snow');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
