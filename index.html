@@ -12,7 +12,7 @@
     body { 
       margin:0; 
       padding:0; 
-      background:#000 url('https://images2.alphacoders.com/100/1006380.jpg') center/cover fixed no-repeat; /* 4K аниме-ночь с сакурой и фонарями */
+      background:#000 url('https://images2.alphacoders.com/100/1006380.jpg') center/cover fixed no-repeat; 
       color:white; 
       font-family:'Noto Sans JP',sans-serif; 
       overflow:hidden; 
@@ -24,72 +24,121 @@
       width:100%; height:100%; 
       pointer-events:none; 
       opacity:0.5; 
-      background:url('https://media.tenor.com/cPBQj33Iu-YAAAAM/cherry-blossom-anime.gif') center/cover fixed; /* Падающие лепестки */
+      background:url('https://wallpapers.com/images/hd/cherry-blossoms-anime-scenery-h5alwun956z07kcw.jpg') center/cover fixed; 
       mix-blend-mode:screen; 
     }
-
-    /* Общие стили */
     .container { 
       position:relative; 
       z-index:10; 
       text-align:center; 
-      padding:2vh 4vw; 
+      padding:5vw; 
       display:none; 
       backdrop-filter: blur(8px); 
       background:rgba(0,0,0,0.5); 
       border-radius:20px; 
-      margin:2vh 2vw; 
+      margin:3vw; 
       box-shadow:0 0 20px rgba(255,105,180,0.3); 
-      max-height:90vh;
+      max-height:85vh;
       overflow-y:auto;
     }
     .active { display:block; }
 
-    /* Мобильный (по умолчанию, <768px) */
-    h1 { font-size:9vw; margin:4vh 0; text-shadow:0 0 20px #ff1493; color:#ff69b4; }
-    .countdown { font-size:6vw; margin:6vh 0; color:#ff69b4; text-shadow:0 0 12px #ff1493; }
-    #game { width:90vw; height:90vw; max-width:360px; max-height:360px; margin:6vh auto; }
-    button { font-size:5.5vw; padding:3vh 6vw; margin:2vh; min-height:10vh; }
-    nav { position:fixed; bottom:0; left:0; width:100%; display:flex; justify-content:space-around; background:rgba(0,0,0,0.8); padding:2vh; backdrop-filter: blur(15px); }
-    nav button { flex:1; font-size:4.5vw; padding:2vh; }
-    #collection { grid-template-columns:repeat(2,1fr); gap:4vw; }
-    #case-model { width:70vw; height:70vw; max-width:280px; max-height:280px; margin:8vh auto; }
+    h1 { font-size:9vw; margin:5vw 0; text-shadow:0 0 25px #ff1493; color:#ff69b4; }
+    .countdown { font-size:6vw; margin:8vw 0; color:#ff69b4; text-shadow:0 0 15px #ff1493; }
+    #game { width:85vw; height:85vw; max-width:340px; max-height:340px; margin:8vw auto; position:relative; background:rgba(255,105,180,0.15); border-radius:40px; overflow:hidden; border:4px solid #ff69b4; box-shadow:0 0 30px #ff1493; }
+    .kadzyun { position:absolute; width:20vw; height:20vw; max-width:80px; max-height:80px; background:url('https://i.imgur.com/0Z9kZ0j.png') center/cover; cursor:pointer; animation:fadeIn 0.5s, glow 1.5s infinite alternate; }
+    @keyframes glow { from { box-shadow:0 0 15px #ff69b4; } to { box-shadow:0 0 30px #ff1493; } }
+    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+    .score { font-size:6.5vw; margin:4vw; color:#ffd700; text-shadow:0 0 15px gold; }
+    .buttons { margin:10vw 0; }
+    button { background:linear-gradient(#ff1493, #ff69b4); border:none; color:white; padding:4vw 8vw; margin:3vw; border-radius:25px; font-size:5.5vw; cursor:pointer; box-shadow:0 0 25px #ff69b4; transition:0.5s; min-height:12vw; }
+    button:hover, button:active { transform:scale(1.1); box-shadow:0 0 40px #ff1493; }
+    .top { margin:6vw; font-size:5vw; background:rgba(0,0,0,0.7); padding:5vw; border-radius:25px; }
+    nav { position:fixed; bottom:0; left:0; width:100%; background:rgba(0,0,0,0.8); padding:3vw; text-align:center; z-index:20; backdrop-filter: blur(15px); display:flex; justify-content:space-around; }
+    nav button { flex:1; margin:2vw; padding:3vw; font-size:4.5vw; background:#ff1493; box-shadow:0 0 20px #ff69b4; }
 
-    /* ПК (≥768px) */
+    #case-model { width:65vw; height:65vw; max-width:250px; max-height:250px; margin:10vw auto; background:url('https://png.pngtree.com/png-vector/20200214/ourlarge/pngtree-japanese-red-envelope-with-sakura-branch-and-cherry-blossom-vector-png-image_2143468.jpg') center/cover; cursor:pointer; transition:0.6s; border-radius:40px; box-shadow:0 0 40px #ff1493; position:relative; overflow:hidden; }
+    #case-model::after { content:''; position:absolute; top:0; left:0; width:100%; height:100%; background:url('https://w0.peakpx.com/wallpaper/508/472/HD-wallpaper-anime-sunset-lantern-fireworks-festival.jpg') center/cover; opacity:0; transition:0.6s; mix-blend-mode:screen; }
+    #case-model:hover::after { opacity:0.4; }
+    #case-model.opening { animation: shakeOpen 2s ease-in-out; }
+    @keyframes shakeOpen {
+      0% { transform: scale(1) rotate(0); }
+      20% { transform: scale(1.15) rotate(-12deg); box-shadow: 0 0 60px #ff1493; }
+      50% { transform: scale(1.4); opacity: 0.6; }
+      100% { transform: scale(1) rotate(0); opacity: 1; }
+    }
+
+    #drop-animation { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:90vw; height:70vh; max-width:360px; max-height:500px; display:none; z-index:30; animation:revealCard 1.2s ease-out; }
+    @keyframes revealCard { from {opacity:0; transform:scale(0.4) translate(-50%,-50%);} to {opacity:1; transform:scale(1) translate(-50%,-50%);} }
+    .card-display { width:100%; height:100%; background:rgba(0,0,0,0.7); border:6px solid gold; border-radius:30px; padding:5vw; text-align:center; box-shadow:0 0 50px #ffd700; position:relative; overflow:hidden; }
+    .rarity-common { border-color:#bbb; }
+    .rarity-rare { border-color:#00ff00; }
+    .rarity-epic { border-color:#ff00ff; box-shadow:0 0 60px #ff00ff; }
+    .card-img { width:70vw; height:70vw; max-width:260px; max-height:260px; object-fit:cover; border-radius:20px; margin:8vw 0; box-shadow:0 0 30px #ff69b4; }
+    #collection { display:grid; grid-template-columns:repeat(auto-fill, minmax(40vw,1fr)); gap:4vw; margin:6vw; padding:3vw; }
+    .collected-card { width:100%; padding-bottom:133%; background-size:cover; background-position:center; border-radius:15px; opacity:0.7; box-shadow:0 0 15px #000; transition:0.5s; position:relative; }
+    .collected-card.owned { opacity:1; box-shadow:0 0 30px gold; transform:scale(1.05); animation: pulse 3s infinite; }
+    @keyframes pulse { 0% { transform:scale(1.05); } 50% { transform:scale(1.15); } 100% { transform:scale(1.05); } }
+    #daily-info { font-size:6vw; margin:8vw; padding:5vw; background:rgba(255,20,147,0.4); border-radius:30px; box-shadow:0 0 25px #ff69b4; }
+
     @media (min-width: 768px) {
-      .container { padding:3vh 5vw; margin:3vh auto; max-width:90vw; }
-      h1 { font-size:4.5vw; margin:3vh 0; }
-      .countdown { font-size:3.5vw; margin:4vh 0; }
-      #game { width:400px; height:400px; margin:4vh auto; }
-      button { font-size:2.2vw; padding:2vh 4vw; margin:1.5vh; }
-      nav { position:fixed; left:0; top:0; width:200px; height:100vh; flex-direction:column; justify-content:flex-start; padding:5vh 0; }
-      nav button { width:80%; margin:2vh auto; font-size:1.8vw; padding:2vh; }
-      .container { margin-left:220px; } /* Отступ под sidebar */
+      h1 { font-size:4.5vw; }
+      .countdown { font-size:3.5vw; }
+      #game { width:400px; height:400px; }
+      button { font-size:2.5vw; padding:2vw 4vw; }
+      nav { position:fixed; left:0; top:0; width:200px; height:100vh; flex-direction:column; background:rgba(0,0,0,0.8); padding:5vh 0; }
+      nav button { width:80%; margin:2vh auto; font-size:2vw; padding:2vh; }
+      .container { margin-left:220px; padding:4vh 6vw; }
       #collection { grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:30px; }
-      #case-model { width:300px; height:300px; margin:6vh auto; }
+      #case-model { width:300px; height:300px; }
       #daily-info { font-size:2.5vw; }
       .top { font-size:2vw; }
     }
-
-    /* Дополнительные общие стили (анимации, кейс и т.д.) */
-    /* Вставь сюда все остальные стили из предыдущего кода: glow, shakeOpen, drop-animation, card-display, confetti и т.д. */
-    /* Чтобы не удлинять — они те же, что в прошлом полном коде */
   </style>
 </head>
 <body>
   <div id="snow"></div>
 
-  <!-- Контейнеры как раньше -->
   <div id="home" class="container active">
-    <!-- ... весь контент главной ... -->
+    <h1>🌸 Morikawa<br>Новый год 2026 ⛩️</h1>
+    <div class="countdown" id="countdown"></div>
+    <p>Поймай кадзюны! 🧧</p>
+    <div class="score">Очки: <span id="score">0</span></div>
+    <div id="game"></div>
+    <div class="top" id="top">Топ сегодня: загружается...</div>
+    <div class="buttons">
+      <button onclick="Telegram.WebApp.openLink('https://forms.gle/BE1kb2Hk94wk6ph87')">🎍 Подать заявку</button>
+      <button onclick="copyCoords()">📍 Координаты: розовая 1700</button>
+      <button onclick="Telegram.WebApp.close()">✨ Закрыть</button>
+    </div>
   </div>
 
   <div id="leaderboard" class="container">
-    <!-- ... -->
+    <h1>🏆 Лидеры по кадзюнам</h1>
+    <div class="top" id="leader-list">Загрузка...</div>
+    <button onclick="switchPage('home')">Назад</button>
   </div>
 
   <div id="cards" class="container">
-    <!-- ... -->
+    <h1>🎲 Новогодние кейсы Morikawa</h1>
+    <div id="daily-info">Загрузка...</div>
+    <div id="case-model" onclick="openCase(false)"></div>
+    <button onclick="openCase(true)">Открыть за 100 монет 🌸</button>
+
+    <div id="drop-animation">
+      <div class="card-display" id="dropped-card">
+        <h2 id="card-name"></h2>
+        <div id="card-rarity"></div>
+        <img id="card-image" class="card-img" src="">
+        <p id="card-desc"></p>
+        <button onclick="closeDrop()">Забрать!</button>
+      </div>
+    </div>
+
+    <h2>Твоя коллекция</h2>
+    <div id="collection">Загрузка...</div>
+
+    <button onclick="switchPage('home')">Назад</button>
   </div>
 
   <nav>
@@ -99,8 +148,244 @@
   </nav>
 
   <script>
-    // Весь скрипт из предыдущего полного кода (PocketBase, initPlayer, openCase, loadCollection, кадзюны и т.д.)
-    // Он полностью совместим!
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+
+    const pb = new PocketBase('http://127.0.0.1:8090'); // Замени на свой серверный URL при выкладке
+
+    let currentPlayer = null;
+    let score = 0;
+
+    // Дополнительные лепестки
+    const canvas = document.getElementById('snow');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    let particles = [];
+    for(let i=0; i<100; i++) {
+      particles.push({
+        x: Math.random()*canvas.width,
+        y: Math.random()*canvas.height,
+        r: Math.random()*4+1,
+        d: Math.random()*100,
+        type: 'sakura'
+      });
+    }
+    function drawParticles() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = '#ff69b4';
+      for(let i=0; i<particles.length; i++) {
+        let p = particles[i];
+        ctx.fillRect(p.x, p.y, p.r*2.5, p.r*3.5);
+        p.y += p.r/1.5;
+        if(p.y > canvas.height) p.y = 0;
+        p.x += Math.sin(p.d/10);
+      }
+      requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+
+    // Отсчёт до НГ
+    function updateCountdown() {
+      const now = new Date();
+      const ny = new Date('2026-01-01T00:00:00');
+      const diff = ny - now;
+      if(diff <= 0) return document.getElementById('countdown').innerHTML = '🎉 С Новым 2026 годом! 🎉';
+      const days = Math.floor(diff / (1000*60*60*24));
+      const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+      const mins = Math.floor((diff % (1000*60*60)) / (1000*60));
+      const secs = Math.floor((diff % (1000*60)) / 1000);
+      document.getElementById('countdown').innerHTML = `${days}д ${hours}ч ${mins}м ${secs}с до Нового года! 🎆`;
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // Кадзюны
+    const game = document.getElementById('game');
+    function spawnKadzyun() {
+      const k = document.createElement('div');
+      k.className = 'kadzyun';
+      k.style.left = Math.random() * (game.offsetWidth - 80) + 'px';
+      k.style.top = Math.random() * (game.offsetHeight - 80) + 'px';
+      k.onclick = () => {
+        score += 10;
+        document.getElementById('score').textContent = score;
+        saveLocalScore();
+        k.remove();
+      };
+      game.appendChild(k);
+      setTimeout(() => k && k.remove(), 3000);
+    }
+    setInterval(spawnKadzyun, 800);
+
+    // Локальный топ кадзюнов
+    function saveLocalScore() {
+      const user = Telegram.WebApp.initDataUnsafe.user || {first_name:'Аноним'};
+      const name = user.username ? `@${user.username}` : user.first_name;
+      const today = new Date().toDateString();
+      let top = JSON.parse(localStorage.getItem('morikawa_top') || '{}');
+      if(!top[today]) top[today] = [];
+      const existing = top[today].find(p => p.name === name);
+      if(existing) existing.score = Math.max(existing.score, score);
+      else top[today].push({name, score});
+      top[today].sort((a,b)=>b.score-a.score);
+      top[today] = top[today].slice(0,10);
+      localStorage.setItem('morikawa_top', JSON.stringify(top));
+      updateTop();
+    }
+    function updateTop() {
+      const today = new Date().toDateString();
+      let top = JSON.parse(localStorage.getItem('morikawa_top') || '{}');
+      const list = top[today] || [];
+      const html = '<strong>🏆 Топ сегодня:</strong><br>' + 
+        (list.length ? list.map((p,i)=>`${i+1}. ${p.name} — ${p.score}`).join('<br>') : 'Пока никто!');
+      document.getElementById('top').innerHTML = html;
+      document.getElementById('leader-list').innerHTML = html;
+    }
+    updateTop();
+
+    // Инициализация игрока
+    async function initPlayer() {
+      const tg = Telegram.WebApp.initDataUnsafe;
+      if (!tg.user || !tg.user.id) {
+        Telegram.WebApp.showAlert('Запусти через Telegram!');
+        return;
+      }
+
+      try {
+        currentPlayer = await pb.collection('players').getFirstListItem(`telegram_id = ${tg.user.id}`);
+      } catch (e) {
+        currentPlayer = await pb.collection('players').create({
+          telegram_id: tg.user.id,
+          username: tg.user.username || tg.user.first_name || 'Аноним',
+          coins: 100,
+          free_cases_today: 0,
+        });
+      }
+
+      document.getElementById('daily-info').innerHTML = `
+        🌸 Монеты: <strong>${currentPlayer.coins}</strong> 
+        | Бесплатный кейс: <strong>${currentPlayer.free_cases_today < 1 ? 'Доступен!' : 'Сегодня использован'}</strong>
+      `;
+
+      await loadCollection();
+    }
+
+    // Открытие кейса
+    async function openCase(paid = false) {
+      if (!currentPlayer) return Telegram.WebApp.showAlert('Загрузка...');
+
+      const today = new Date().toISOString().slice(0,10);
+
+      if (!paid && currentPlayer.free_cases_today >= 1) {
+        return Telegram.WebApp.showAlert('Бесплатный кейс уже открыт сегодня!');
+      }
+      if (paid && currentPlayer.coins < 100) {
+        return Telegram.WebApp.showAlert('Недостаточно монет! Нужно 100 🌸');
+      }
+
+      const caseModel = document.getElementById('case-model');
+      caseModel.classList.add('opening');
+      setTimeout(async () => {
+        caseModel.classList.remove('opening');
+
+        const cards = await pb.collection('cards').getFullList();
+        if (cards.length === 0) {
+          Telegram.WebApp.showAlert('Нет карточек в базе! Добавь в админке');
+          return;
+        }
+        const total = cards.reduce((s, c) => s + c.drop_weight, 0);
+        let rand = Math.random() * total;
+        let drop = null;
+        for (let c of cards) {
+          rand -= c.drop_weight;
+          if (rand <= 0) { drop = c; break; }
+        }
+
+        try {
+          await pb.collection('player_cards').create({
+            player: currentPlayer.id,
+            card: drop.id,
+          });
+        } catch (e) {}
+
+        const updates = {};
+        if (paid) updates.coins = currentPlayer.coins - 100;
+        if (!paid) {
+          updates.free_cases_today = 1;
+          updates.last_free_case = today;
+        }
+        currentPlayer = await pb.collection('players').update(currentPlayer.id, updates);
+
+        document.getElementById('card-name').textContent = drop.name + (drop.username ? ` (${drop.username})` : '');
+        document.getElementById('card-rarity').textContent = drop.rarity.toUpperCase();
+        document.getElementById('card-rarity').style.color = drop.rarity === 'epic' ? '#ff00ff' : drop.rarity === 'rare' ? '#00ff00' : '#bbb';
+        document.getElementById('card-image').src = drop.image_url || 'https://via.placeholder.com/260?text=No+Image';
+        document.getElementById('card-desc').textContent = drop.description || '';
+        document.getElementById('dropped-card').className = `card-display rarity-${drop.rarity}`;
+        document.getElementById('drop-animation').style.display = 'block';
+
+        for(let i=0; i<80; i++) {
+          const conf = document.createElement('div');
+          conf.className = 'confetti';
+          conf.style.left = Math.random()*360 + 'px';
+          conf.style.background = ['#ff69b4', '#ffd700', '#ff1493'][Math.floor(Math.random()*3)];
+          conf.style.animationDelay = Math.random()*0.5 + 's';
+          document.getElementById('dropped-card').appendChild(conf);
+          setTimeout(() => conf.remove(), 4000);
+        }
+
+        Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        document.getElementById('daily-info').innerHTML = `
+          🌸 Монеты: <strong>${currentPlayer.coins}</strong> 
+          | Бесплатный кейс: <strong>Сегодня использован</strong>
+        `;
+        await loadCollection();
+      }, 2000);
+    }
+
+    function closeDrop() {
+      document.getElementById('drop-animation').style.display = 'none';
+    }
+
+    async function loadCollection() {
+      if (!currentPlayer) return;
+
+      const records = await pb.collection('player_cards').getList(1, 100, {
+        filter: `player = "${currentPlayer.id}"`,
+        expand: 'card',
+      });
+
+      const allCards = await pb.collection('cards').getFullList();
+      const collectionEl = document.getElementById('collection');
+      collectionEl.innerHTML = `<h3>Коллекция: ${records.items.length} / ${allCards.length}</h3>`;
+
+      allCards.forEach(card => {
+        const div = document.createElement('div');
+        div.className = 'collected-card';
+        const owned = records.items.some(r => r.expand.card.id === card.id);
+        if (owned) div.classList.add('owned');
+        div.style.backgroundImage = `url('${card.image_url || 'https://via.placeholder.com/180?text=' + card.name}')`;
+        div.title = `${card.name} (${card.rarity})`;
+        collectionEl.appendChild(div);
+      });
+    }
+
+    function switchPage(page) {
+      document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
+      document.getElementById(page).classList.add('active');
+      if (page === 'cards') {
+        initPlayer();
+      }
+      if (page === 'leaderboard') {
+        updateTop();
+      }
+    }
+
+    function copyCoords() {
+      navigator.clipboard.writeText('розовая ветка:1700');
+      Telegram.WebApp.showAlert('Координаты скопированы!');
+    }
   </script>
 </body>
 </html>
